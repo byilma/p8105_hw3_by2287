@@ -48,9 +48,9 @@ instacart %>%
 ```
 
 
-1 - Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+A plot that shows the number of items ordered in each aisle (looking at only aisles with > 10000 orders), limiting this to aisles with more than 10000 items ordered. 
 
-```{r}
+```{r, message = FALSE}
 instacart %>% 
   group_by(aisle) %>% 
   summarise(n_orders = n()) %>% 
@@ -62,7 +62,7 @@ instacart %>%
 
 ```
 
-2 - Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+The three most popular items in the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”:
 
 ```{r}
 instacart %>% 
@@ -78,9 +78,9 @@ instacart %>%
 ```
 
 
-3 - Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+The mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
 
-```{r}
+```{r, message = FALSE}
 instacart %>% 
   filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) %>% 
   group_by(product_name, order_dow) %>% 
