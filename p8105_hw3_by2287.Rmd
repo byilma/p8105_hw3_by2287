@@ -4,10 +4,54 @@ author: "Binyam Yilma"
 output: github_document
 ---
 
-```{r setup, include = F}
+#### Setup
+
+```{r setup, message=FALSE}
 library(tidyverse)
 
 library(p8105.datasets)
 data("instacart")
 ```
+
+
+The dataframe `instacart` is made up of `r nrow(instacart)` rows and `r ncol(instacart)` columns, and it contains information on grocery orders from  `r instacart %>% pull(user_id)  %>% n_distinct()` unique customers.
+There are `r instacart %>% pull(user_id)  %>% n_distinct()` unique products in this dataset. 
+
+Some key variables in `instacart` include: the `order_id` for a particular order, and an identifier for the each customer in `user_id`, the names of different products in `product_name`, as well as the `order_hour_of_day`, which has a range of: `r instacart %>% pull(order_hour_of_day) %>% range()`. 
+
+How many aisles are there, and which aisles are the most items ordered from?
+
+There are `r instacart %>% pull(aisle_id)  %>% n_distinct()` unique aisles. 
+
+These are the top 3 most ordered from aisles. 
+```{r, echo = FALSE, message  = F}
+instacart %>% 
+  group_by(aisle) %>% 
+  summarise(n_orders = n()) %>% 
+  arrange(desc(n_orders)) %>% 
+  head(3) %>% 
+  knitr::kable()
+```
+
+
+1 - Make a plot that shows the number of items ordered in each aisle, limiting this to aisles with more than 10000 items ordered. Arrange aisles sensibly, and organize your plot so others can read it.
+
+```{r}
+instacart %>% 
+  group_by(aisle) %>% 
+  summarise(n_orders = n()) %>% 
+  arrange(desc(n_orders)) %>% 
+  filter(n_orders > 10000) %>% 
+  ggplot(aes(x = aisle, y = n_orders)) + 
+  geom_point()
+
+```
+
+2 - Make a table showing the three most popular items in each of the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”. Include the number of times each item is ordered in your table.
+
+
+3 - Make a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week; format this table for human readers (i.e. produce a 2 x 7 table).
+
+
+
 
