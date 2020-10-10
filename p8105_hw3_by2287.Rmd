@@ -20,8 +20,8 @@ knitr::opts_chunk$set(
 )
 theme_set(theme_minimal() + theme(legend.position = "bottom"))
 options(
-  ggplot2.continous.colour = "viridis",
-  ggplot2.continous.fill = "viridis"
+ ggplot2.continous.colour = "viridis",
+ ggplot2.continous.fill = "viridis"
 )
 scale_colour_discrete = scale_color_viridis_d
 scale_fill_discrete = scale_fill_viridis_d
@@ -121,7 +121,8 @@ accel_tidy = accel %>%
     ), 
     day_id = as.integer(day_id),
     week = as.integer(week),
-    activity_id = as.integer(activity_id)
+    activity_id = as.integer(activity_id),
+    day = factor(day)
   ) %>% 
   relocate(day_id, day, day_type, week)
 ```
@@ -132,4 +133,42 @@ The data frame `accel_tidy` is a tidy version of the `accel` dataset, imported i
 `accel_tidy` has `r nrow(accel_tidy)` rows and `r ncol(accel_tidy)` columns, and it includes these variables: `r accel_tidy %>% names`. 
 
 These variables are collected from an accelerometer, which was worn by a 63 year-old male, and contain minute by minute information on `r accel_tidy %>% pull(activity_id) %>% n_distinct()` different types of activities, measured for each day over 5 weeks. 
+
+
+
+
+
+
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+
+
+
+#### total activity over a given day
+```{r}
+accel_tidy %>% 
+  group_by(day_id, day, day_type) %>% 
+  summarise(
+    total_activity = sum(activity_count)
+  ) %>% 
+  arrange(day_id) %>% 
+  knitr::kable(digits = 2)
+  # ggplot(aes(x = day_id, y = total_activity)) + 
+  # geom_point(alpha = .5) + 
+  # geom_smooth(se = F) + 
+  # theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1))
+```
+
+It's hard to spot any trends in the data, in specific the total activity per day, from the table only. 
+
+Worth noting here, is that there a couple of Saturday's where  the subject's activity level was exactly 1440.0 (perhaps an artifact of the accelerometer?).
+
+#### Graph showing the 24-hour activity time courses for each day
+```{r}
+accel_tidy %>% 
+  ggplot(aes(y = day_id, x = activity_count, color = day)) + 
+  geom_point(alpha = .5) + 
+  scale_y_continuous(
+    breaks = c(1:35)
+    ) 
+```
 
