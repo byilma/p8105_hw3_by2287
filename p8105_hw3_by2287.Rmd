@@ -8,6 +8,7 @@ output: github_document
 
 ```{r, include = FALSE}
 library(tidyverse)
+library(readr)
 
 library(p8105.datasets)
 data("instacart")
@@ -93,4 +94,42 @@ instacart %>%
 ```
 
 
+
+Problem 2
+
+Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc).
+Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
+Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
+
+## Problem 2 
+```{r}
+
+accel = read_csv("./data/accel_data.csv") %>% 
+  janitor::clean_names() 
+
+accel_tidy = accel %>%
+  pivot_longer(
+    cols = activity_1:activity_1440, 
+    names_to = "activity_id", 
+    names_prefix = "activity_",
+    values_to = "activity_count"
+    ) %>% 
+  mutate(
+    day_type = case_when(
+      day %in% c("Saturday","Sunday") ~ "Weekend",
+      TRUE ~ "Weekday"
+    ), 
+    day_id = as.integer(day_id),
+    week = as.integer(week),
+    activity_id = as.integer(activity_id)
+  ) %>% 
+  relocate(day_id, day, day_type, week)
+```
+
+
+The data frame `accel_tidy` is a tidy version of the `accel` dataset, imported in the above code chunk. 
+
+`accel_tidy` has `r nrow(accel_tidy)` rows and `r ncol(accel_tidy)` columns, and it includes these variables: `r accel_tidy %>% names`. 
+
+These variables are collected from an accelerometer, which was worn by a 63 year-old male, and contain minute by minute information on `r accel_tidy %>% pull(activity_id) %>% n_distinct()` different types of activities, measured for each day over 5 weeks. 
 
