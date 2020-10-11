@@ -12,6 +12,7 @@ library(readr)
 
 library(p8105.datasets)
 data("instacart")
+data("ny_noaa")
 
 knitr::opts_chunk$set(
   fig.width = 6,
@@ -128,7 +129,7 @@ accel_tidy = accel %>%
 ```
 
 
-The data frame `accel_tidy` is a tidy version of the `accel` dataset, imported in the above code chunk. 
+The dataset `accel_tidy` is a tidy version of the `accel` dataset, imported in the above code chunk. 
 
 `accel_tidy` has `r nrow(accel_tidy)` rows and `r ncol(accel_tidy)` columns, and it includes these variables: `r accel_tidy %>% names`. 
 
@@ -171,4 +172,73 @@ accel_tidy %>%
     breaks = c(1:35)
     ) 
 ```
+
+
+## Problem 3
+
+```{r}
+ny_noaa_tidy = ny_noaa %>% 
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(
+    snow = snow/10,
+    tmax = as.integer(tmax)/10,
+    tmin = as.integer(tmin)/10,
+    prcp = prcp/10, 
+    month = as.integer(month),
+    month = month.name[month]
+    )
+```
+The dataset `ny_noaa` has `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns, and as it is, it includes the following variables: `r ny_noaa %>% names`. 
+It contains informaiton collected from `r ny_noaa %>% pull(id) %>% n_distinct()` unique weather stations. 
+
+Tidy-ing the ny_noaa dataset
+```{r}
+ny_noaa_tidy %>% 
+  count(snow, name = "n_of_days") %>% 
+  arrange(desc(n_of_days)) %>% 
+  rename(snow_in_mm = snow) %>% 
+  head(3) %>% 
+  knitr::kable()
+```
+
+
+The most commonly observed values for snow fall is `0`, coming in at `r ny_noaa_tidy %>% count(snow) %>% arrange(desc(n)) %>% head(1) %>% select(n)` observations. This is followed by `NA` values, and `25 mm` of snow. I believe this is because days covered in the `ny_noaa` dataset see more no_snow days than they actually see snow days. 
+
+
+```{r}
+ny_noaa_tidy %>% 
+  filter(month %in% c("July", "January") & tmax != "") %>% 
+  group_by(year, month) %>% 
+  summarise(
+    mean_tmax = mean(tmax)
+  ) %>% 
+  ggplot(aes(x = year , y = mean_tmax, color = month)) + 
+  geom_point(alpha = 2) + 
+  geom_smooth(se = F) + 
+  facet_grid(. ~ month)
+```
+
+The average `tmax` in July has stayed more or less the same. However the average `tmax` for January saw a big increase in the 1980's. It's noteable how in both instances, the variability tended to increase as the years went by. 
+
+
+Make a two-panel plot showing: tmax vs tmin for the full dataset 
+```{r}
+ny_noaa_tidy %>% 
+  filter(tmin != "" & tmax != "" ) %>% 
+  ggplot(aes(x = tmin, y = tmax)) + 
+  geom_hex() + 
+  theme(legend.position = "right")
+
+```
+
+Make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+
+```{r}
+ny_noaa_tidy %>% 
+  filter(snow > 0 & snow < 100 & snow != "") %>% 
+  ggplot(aes(y = year, x = snow, fill = year)) + 
+  ggridges::geom_density_ridges()
+```
+
+
 
