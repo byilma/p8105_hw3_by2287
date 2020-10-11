@@ -31,11 +31,10 @@ scale_fill_discrete = scale_fill_viridis_d
 
 
 The dataframe `instacart` is made up of `r nrow(instacart)` rows and `r ncol(instacart)` columns, and it contains information on grocery orders from  `r instacart %>% pull(user_id)  %>% n_distinct()` unique customers.
-There are `r instacart %>% pull(user_id)  %>% n_distinct()` unique products in this dataset. 
+There are `r instacart %>% pull(product_id)  %>% n_distinct()` unique products in this dataset. 
 
-Some key variables in `instacart` include: the `order_id` for a particular order, and an identifier for the each customer in `user_id`, the names of different products in `product_name`, as well as the `order_hour_of_day`, which has a range of: `r instacart %>% pull(order_hour_of_day) %>% range()`. 
+Some key variables in `instacart` include: the `order_id` for a particular order, and an identifier for the each customer in `user_id`, the names of different products in `product_name`, as well as the `order_hour_of_day`, which has a range between (`r instacart %>% pull(order_hour_of_day) %>% range()`).
 
-How many aisles are there, and which aisles are the most items ordered from?
 
 There are `r instacart %>% pull(aisle_id)  %>% n_distinct()` unique aisles. 
 
@@ -50,7 +49,7 @@ instacart %>%
 ```
 
 
-A plot that shows the number of items ordered in each aisle (looking at only aisles with > 10000 orders), limiting this to aisles with more than 10000 items ordered. 
+Here's a plot that shows the number of items ordered in each aisle (looking at only aisles with > 10000 orders), limiting this to aisles with more than 10000 items ordered. 
 
 ```{r, message = FALSE}
 instacart %>% 
@@ -64,7 +63,7 @@ instacart %>%
 
 ```
 
-The three most popular items in the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits”:
+The three most popular items (ranked) in the aisles “baking ingredients”, “dog food care”, and “packaged vegetables fruits” are:
 
 ```{r}
 instacart %>% 
@@ -80,7 +79,7 @@ instacart %>%
 ```
 
 
-The mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
+Here's a table showing the mean hour of the day at which Pink Lady Apples and Coffee Ice Cream are ordered on each day of the week:
 
 ```{r, message = FALSE}
 instacart %>% 
@@ -95,20 +94,12 @@ instacart %>%
 ```
 
 
-
-Problem 2
-
-Load, tidy, and otherwise wrangle the data. Your final dataset should include all originally observed variables and values; have useful variable names; include a weekday vs weekend variable; and encode data with reasonable variable classes. Describe the resulting dataset (e.g. what variables exist, how many observations, etc).
-Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
-Accelerometer data allows the inspection activity over the course of the day. Make a single-panel plot that shows the 24-hour activity time courses for each day and use color to indicate day of the week. Describe in words any patterns or conclusions you can make based on this graph.
-
 ## Problem 2 
-```{r}
+Reading in & tidying the `accel` dataset.
+```{r, message=FALSE}
 
-accel = read_csv("./data/accel_data.csv") %>% 
-  janitor::clean_names() 
-
-accel_tidy = accel %>%
+accel_tidy = read_csv("./data/accel_data.csv") %>% 
+  janitor::clean_names() %>%
   pivot_longer(
     cols = activity_1:activity_1440, 
     names_to = "activity_id", 
@@ -129,23 +120,13 @@ accel_tidy = accel %>%
 ```
 
 
-The dataset `accel_tidy` is a tidy version of the `accel` dataset, imported in the above code chunk. 
+The dataset `accel_tidy` is a tidy version of the `accel` dataset. 
 
-`accel_tidy` has `r nrow(accel_tidy)` rows and `r ncol(accel_tidy)` columns, and it includes these variables: `r accel_tidy %>% names`. 
-
-These variables are collected from an accelerometer, which was worn by a 63 year-old male, and contain minute by minute information on `r accel_tidy %>% pull(activity_id) %>% n_distinct()` different types of activities, measured for each day over 5 weeks. 
+`accel_tidy` has `r nrow(accel_tidy)` rows and `r ncol(accel_tidy)` columns, and it includes the following variables: [`r accel_tidy %>% names`]. These variables were collected from an accelerometer, which was worn by a 63 year-old male, and contain minute-by-minute information on `r accel_tidy %>% pull(activity_id) %>% n_distinct()` different types of activities, measured for each day over 5 weeks. 
 
 
-
-
-
-
-Traditional analyses of accelerometer data focus on the total activity over the day. Using your tidied dataset, aggregate accross minutes to create a total activity variable for each day, and create a table showing these totals. Are any trends apparent?
-
-
-
-#### total activity over a given day
-```{r}
+#### Computing the Total Activity over all days where the subject had the accelerometer.
+```{r, message = F}
 accel_tidy %>% 
   group_by(day_id, day, day_type) %>% 
   summarise(
@@ -153,18 +134,12 @@ accel_tidy %>%
   ) %>% 
   arrange(day_id) %>% 
   knitr::kable(digits = 2)
-  # ggplot(aes(x = day_id, y = total_activity)) + 
-  # geom_point(alpha = .5) + 
-  # geom_smooth(se = F) + 
-  # theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1))
 ```
 
-It's hard to spot any trends in the data, in specific the total activity per day, from the table only. 
+It's hard to spot any trends in the data, in specific the total activity per day, from the table only. Worth noting here, is that there a couple of Saturday's where  the subject's activity level was exactly 1440.0 (perhaps an artifact of the accelerometer?) - check observation 24 & 31.
 
-Worth noting here, is that there a couple of Saturday's where  the subject's activity level was exactly 1440.0 (perhaps an artifact of the accelerometer?).
-
-#### Graph showing the 24-hour activity time courses for each day
-```{r}
+#### Graph showing the 24-hour activity time course for each day
+```{r, fig.width=12, fig.height=8}
 accel_tidy %>% 
   ggplot(aes(y = day_id, x = activity_count, color = day)) + 
   geom_point(alpha = .5) + 
@@ -175,7 +150,7 @@ accel_tidy %>%
 
 
 ## Problem 3
-
+Import & tidy the `ny_noaa` dataset.
 ```{r}
 ny_noaa_tidy = ny_noaa %>% 
   separate(date, into = c("year", "month", "day")) %>% 
@@ -189,9 +164,10 @@ ny_noaa_tidy = ny_noaa %>%
     )
 ```
 The dataset `ny_noaa` has `r nrow(ny_noaa)` rows and `r ncol(ny_noaa)` columns, and as it is, it includes the following variables: `r ny_noaa %>% names`. 
-It contains informaiton collected from `r ny_noaa %>% pull(id) %>% n_distinct()` unique weather stations. 
+It also contains informaiton collected from `r ny_noaa %>% pull(id) %>% n_distinct()` unique weather stations. 
 
-Tidy-ing the ny_noaa dataset
+EDA of interest:
+For snowfall, what are the most commonly observed values?
 ```{r}
 ny_noaa_tidy %>% 
   count(snow, name = "n_of_days") %>% 
@@ -205,7 +181,8 @@ ny_noaa_tidy %>%
 The most commonly observed values for snow fall is `0`, coming in at `r ny_noaa_tidy %>% count(snow) %>% arrange(desc(n)) %>% head(1) %>% select(n)` observations. This is followed by `NA` values, and `25 mm` of snow. I believe this is because days covered in the `ny_noaa` dataset see more no_snow days than they actually see snow days. 
 
 
-```{r}
+##### How does the average maximum temperature in January & July change over the years? 
+```{r, message=FALSE, fig.width=12}
 ny_noaa_tidy %>% 
   filter(month %in% c("July", "January") & tmax != "") %>% 
   group_by(year, month) %>% 
@@ -215,13 +192,14 @@ ny_noaa_tidy %>%
   ggplot(aes(x = year , y = mean_tmax, color = month)) + 
   geom_point(alpha = 2) + 
   geom_smooth(se = F) + 
-  facet_grid(. ~ month)
+  facet_grid(. ~ month) + 
+  theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1))
 ```
 
 The average `tmax` in July has stayed more or less the same. However the average `tmax` for January saw a big increase in the 1980's. It's noteable how in both instances, the variability tended to increase as the years went by. 
 
 
-Make a two-panel plot showing: tmax vs tmin for the full dataset 
+#### Making a two-panel plot showing: tmax vs tmin for the full dataset 
 ```{r}
 ny_noaa_tidy %>% 
   filter(tmin != "" & tmax != "" ) %>% 
@@ -231,9 +209,9 @@ ny_noaa_tidy %>%
 
 ```
 
-Make a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
+#### Making a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
-```{r}
+```{r, fig.height= 12, fig.width=12}
 ny_noaa_tidy %>% 
   filter(snow > 0 & snow < 100 & snow != "") %>% 
   ggplot(aes(y = year, x = snow, fill = year)) + 
