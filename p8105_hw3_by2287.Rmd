@@ -59,7 +59,12 @@ instacart %>%
   filter(n_orders > 10000) %>% 
   ggplot(aes(x = aisle, y = n_orders)) + 
   geom_point() + 
-  theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1))
+  theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1)) + 
+  labs(
+    title = "Number of Orders by Aisle", 
+    x = "Aisles",
+    y = "Number of Orders"
+  )
 
 ```
 
@@ -145,7 +150,12 @@ accel_tidy %>%
   geom_point(alpha = .5) + 
   scale_y_continuous(
     breaks = c(1:35)
-    ) 
+    ) + 
+  labs(
+    title = "Activities over a day", 
+    x = "Activity Count",
+    y = "Days on Study"
+  )
 ```
 
 
@@ -191,31 +201,46 @@ ny_noaa_tidy %>%
   ) %>% 
   ggplot(aes(x = year , y = mean_tmax, color = month)) + 
   geom_point(alpha = 2) + 
-  geom_smooth(se = F) + 
+  geom_smooth(se = T) + 
   facet_grid(. ~ month) + 
-  theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1))
+  theme(axis.text.x = element_text(angle = 60, vjust = 1.0, hjust = 1)) + 
+  labs(
+    title = "30 year Average Max Temperature in Jan vs July", 
+    x = "Years",
+    y = "Average maximum temperature (˚C)"
+  )
 ```
 
-The average `tmax` in July has stayed more or less the same. However the average `tmax` for January saw a big increase in the 1980's. It's noteable how in both instances, the variability tended to increase as the years went by. 
+The average `tmax` in July has stayed more or less the same. However the average `tmax` for January saw a big increase in the 1980's. It's noteable how in both instances, the variability tended to increase as the years went by - . 
 
 
 #### Making a two-panel plot showing: tmax vs tmin for the full dataset 
-```{r}
+```{r, fig.height=12, fig.width=12}
 ny_noaa_tidy %>% 
   filter(tmin != "" & tmax != "" ) %>% 
   ggplot(aes(x = tmin, y = tmax)) + 
   geom_hex() + 
-  theme(legend.position = "right")
+  theme(legend.position = "right") + 
+  labs(
+    title = "Scatterplot of tmin v tmax", 
+    x = "Minimum daily temperature (˚C)",
+    y = "Minimum daily temperature (˚C)"
+  )
 
 ```
 
 #### Making a plot showing the distribution of snowfall values greater than 0 and less than 100 separately by year.
 
-```{r, fig.height= 12, fig.width=12}
+```{r, fig.height= 12, fig.width=12, message = F}
 ny_noaa_tidy %>% 
   filter(snow > 0 & snow < 100 & snow != "") %>% 
   ggplot(aes(y = year, x = snow, fill = year)) + 
-  ggridges::geom_density_ridges()
+  ggridges::geom_density_ridges() + 
+  labs(
+    title = "Distribution of Snow Fall", 
+    x = "Snow Fall (mm)",
+    y = "Years"
+  )
 ```
 
 
